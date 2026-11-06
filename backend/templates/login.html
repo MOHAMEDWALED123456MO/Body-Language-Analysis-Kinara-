@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="sec auth">
+  <div class="auth-card">
+    <h1 id="au-h" data-i18n="au_login"></h1>
+    <div id="au-alert" class="alert err" hidden></div>
+    <form id="au-form" autocomplete="on" novalidate>
+      <label id="l-name" for="au-name" data-i18n="au_name" hidden></label>
+      <input id="au-name" type="text" maxlength="120" autocomplete="name" hidden>
+      <label for="au-email" data-i18n="au_email"></label>
+      <input id="au-email" type="email" maxlength="190" autocomplete="email" required>
+      <label for="au-pass" data-i18n="au_pass"></label>
+      <input id="au-pass" type="password" maxlength="128" autocomplete="current-password" required>
+      <p id="au-hint" class="fine" hidden data-i18n="au_hint"></p>
+      <button id="au-go" class="btn" type="submit"></button>
+    </form>
+    <button id="au-switch" class="btn ghost" type="button"></button>
+  </div>
+</section>
+<script>window.NEXT = {{ next|tojson }};</script>
+{% endblock %}
+{% block scripts %}<script src="/static/auth.js"></script>{% endblock %}

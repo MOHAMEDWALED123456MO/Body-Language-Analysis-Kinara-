@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kinara report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/report.css">
+</head>
+<body>
+<div class="bar no-print">
+  <a class="rb" id="back" href="/results/{{ job_id }}"></a>
+  <span class="grow"></span>
+  <button class="rb" id="lang" type="button"></button>
+  <button class="rb primary" id="print" type="button"></button>
+</div>
+<main class="paper">
+  <div id="state" class="rstate"></div>
+  <article id="rep" hidden></article>
+</main>
+<script>window.JOB_ID = "{{ job_id }}"; window.SIGNALS = {{ signals|tojson }}; window.VOICE_SIGNALS = {{ voice_signals|tojson }}; window.SCENARIOS = {{ scenarios|tojson }};</script>
+<script src="/static/report.js"></script>
+</body>
+</html>

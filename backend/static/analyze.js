@@ -24,14 +24,14 @@
     $("goal").placeholder = T("goal_ph");
   }
 
-  function showAlert(key, err) { alertKey = key; box.hidden = false; box.className = "alert" + (err ? " err" : ""); box.textContent = T(key); }
+  function showAlert(key, err) { alertKey = key; box.hidden = false; box.className = "alert" + (err ? " err" : ""); box.textContent = T(key); box.scrollIntoView({ block: "center", behavior: "smooth" }); }
   function clearAlert() { alertKey = null; box.hidden = true; }
   function setProgress(p) { pct = Math.round(p * 100); $("upbar").style.width = pct + "%"; $("uptext").textContent = T("uploading", { p: pct }); }
 
   function fail(key) { up.hidden = true; pct = null; drop.disabled = !ready; showAlert(key, true); }
 
   function send(f) {
-    clearAlert(); up.hidden = false; drop.disabled = true; setProgress(0);
+    clearAlert(); up.hidden = false; drop.disabled = true; setProgress(0); up.scrollIntoView({ block: "center", behavior: "smooth" });
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/analyze?filename=" + encodeURIComponent(f.name) + "&scenario=" + encodeURIComponent(scenario) +
              "&goal=" + encodeURIComponent($("goal").value.trim().slice(0, 300)));
@@ -46,6 +46,8 @@
     };
     xhr.send(f);
   }
+
+  window.KinaraSend = (f) => { if (!ready) { if (alertKey) box.scrollIntoView({ block: "center", behavior: "smooth" }); else showAlert("err_internal", true); return false; } if (!f.size) { showAlert("err_empty", true); return false; } send(f); return true; };
 
   function pick(f) {
     if (!f || !ready) return;

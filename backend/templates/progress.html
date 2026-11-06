@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="sec res">
+  <h1 data-i18n="pg_h"></h1>
+  <p class="sub" data-i18n="pg_sub"></p>
+  <div id="pg-empty" class="alert" hidden data-i18n="pg_empty"></div>
+  <div id="pg" hidden>
+    <div id="pg-stats" class="vgrid"></div>
+    <h2 data-i18n="pg_chart"></h2>
+    <div id="pg-chart" class="pg-chart"></div>
+    <h2 data-i18n="pg_cmp"></h2>
+    <div id="pg-cmp"></div>
+    <h2 data-i18n="pg_sessions"></h2>
+    <div id="pg-list"></div>
+  </div>
+</section>
+<script>window.SIGNALS = {{ signals|tojson }}; window.VOICE_SIGNALS = {{ voice_signals|tojson }}; window.SCENARIOS = {{ scenarios|tojson }};</script>
+{% endblock %}
+{% block scripts %}<script src="/static/session.js"></script><script src="/static/progress.js"></script>{% endblock %}

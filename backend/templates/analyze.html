@@ -14,6 +14,22 @@
     <span data-i18n="drop_s"></span>
   </button>
   <input id="file" type="file" accept="video/*,.mkv" hidden>
+  <button id="rec-open" class="drop rec-open" type="button">
+    <strong data-i18n="rec_open"></strong>
+    <span data-i18n="rec_open_s"></span>
+  </button>
+  <div id="rec" class="rec" hidden>
+    <video id="rec-vid" playsinline muted></video>
+    <div class="rec-bar">
+      <span id="rec-time" class="rec-time" dir="ltr">0:00</span>
+      <button id="rec-start" class="btn" type="button" data-i18n="rec_start"></button>
+      <button id="rec-stop" class="btn" type="button" hidden data-i18n="rec_stop"></button>
+      <button id="rec-use" class="btn" type="button" hidden data-i18n="rec_use"></button>
+      <button id="rec-retake" class="btn ghost" type="button" hidden data-i18n="rec_retake"></button>
+      <button id="rec-close" class="btn ghost" type="button" data-i18n="rec_close"></button>
+    </div>
+    <p id="rec-note" class="fine"></p>
+  </div>
   <div id="up" class="prog" hidden>
     <div class="track"><i id="upbar"></i></div>
     <p id="uptext"></p>
@@ -29,4 +45,4 @@
   <ul id="recent" class="recent"></ul>
 </section>
 {% endblock %}
-{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/analyze.js"></script>{% endblock %}
+{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/session.js"></script><script src="/static/analyze.js"></script><script src="/static/record.js"></script>{% endblock %}

@@ -9,6 +9,8 @@
         <div id="meta" class="meta"></div>
       </div>
       <div class="actions">
+        <a class="btn" id="rep-link" href="/report/{{ job_id }}" target="_blank" rel="noopener" data-i18n="res_report"></a>
+        <a class="btn ghost" href="/progress" data-i18n="nav_progress"></a>
         <a class="btn ghost" href="/analyze" data-i18n="res_new"></a>
         <button id="del" class="btn ghost danger" type="button" data-i18n="res_delete"></button>
       </div>
@@ -55,4 +57,4 @@
 </section>
 <script>window.JOB_ID = "{{ job_id }}"; window.SIGNALS = {{ signals|tojson }}; window.SCENARIOS = {{ scenarios|tojson }}; window.VOICE_SIGNALS = {{ voice_signals|tojson }};</script>
 {% endblock %}
-{% block scripts %}<script src="/static/results.js"></script>{% endblock %}
+{% block scripts %}<script src="/static/session.js"></script><script src="/static/results.js"></script>{% endblock %}
