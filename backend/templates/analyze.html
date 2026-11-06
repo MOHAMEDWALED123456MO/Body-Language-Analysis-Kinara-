@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="sec an">
+  <h1 data-i18n="an_h"></h1>
+  <p class="lead" data-i18n="an_lead"></p>
+  <div id="alert" class="alert" role="alert" hidden></div>
+  <h2 data-i18n="sc_h"></h2>
+  <p class="sub" data-i18n="sc_sub"></p>
+  <div id="scn" class="scn" role="radiogroup"></div>
+  <label class="goal-l" for="goal" data-i18n="goal_l"></label>
+  <textarea id="goal" class="goal" rows="2" maxlength="300"></textarea>
+  <button id="drop" class="drop" type="button">
+    <strong data-i18n="drop_t"></strong>
+    <span data-i18n="drop_s"></span>
+  </button>
+  <input id="file" type="file" accept="video/*,.mkv" hidden>
+  <div id="up" class="prog" hidden>
+    <div class="track"><i id="upbar"></i></div>
+    <p id="uptext"></p>
+  </div>
+  <h2 data-i18n="tips_h"></h2>
+  <ul class="tips">
+    <li data-i18n="tip1"></li>
+    <li data-i18n="tip2"></li>
+    <li data-i18n="tip3"></li>
+    <li data-i18n="tip4"></li>
+  </ul>
+  <h2 data-i18n="recent_h"></h2>
+  <ul id="recent" class="recent"></ul>
+</section>
+{% endblock %}
+{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/analyze.js"></script>{% endblock %}

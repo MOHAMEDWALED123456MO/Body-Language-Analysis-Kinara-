@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="sec res">
+  <div id="state"></div>
+  <div id="view" hidden>
+    <div class="res-head">
+      <div>
+        <h1 id="title"></h1>
+        <div id="meta" class="meta"></div>
+      </div>
+      <div class="actions">
+        <a class="btn ghost" href="/analyze" data-i18n="res_new"></a>
+        <button id="del" class="btn ghost danger" type="button" data-i18n="res_delete"></button>
+      </div>
+    </div>
+    <div class="player">
+      <video id="vid" controls playsinline preload="metadata"></video>
+      <p id="vidnote" class="fine" hidden></p>
+    </div>
+    <div id="score" class="score"></div>
+    <h2 data-i18n="res_coach"></h2>
+    <p class="sub" data-i18n="res_coach_sub"></p>
+    <div id="coach"></div>
+    <h2 data-i18n="res_chat"></h2>
+    <p class="sub" data-i18n="res_chat_sub"></p>
+    <div id="chat" class="chat">
+      <p id="ch-engine" class="fine"></p>
+      <div id="ch-log" class="ch-log" aria-live="polite"></div>
+      <div id="ch-chips" class="ch-chips"></div>
+      <form id="ch-form" class="ch-form" autocomplete="off">
+        <input id="ch-input" type="text" maxlength="1000">
+        <button id="ch-send" class="btn" type="submit" data-i18n="ch_send"></button>
+        <button id="ch-clear" class="btn ghost" type="button" data-i18n="ch_clear"></button>
+      </form>
+      <div id="ch-alert" class="alert err" hidden></div>
+    </div>
+    <h2 data-i18n="res_moments"></h2>
+    <p class="sub" data-i18n="res_moments_sub"></p>
+    <ol id="moments" class="moments"></ol>
+    <h2 data-i18n="res_timeline"></h2>
+    <div id="timeline" class="tl"></div>
+    <h2 data-i18n="res_signals"></h2>
+    <div id="table"></div>
+    <h2 data-i18n="res_voice"></h2>
+    <div id="voice"></div>
+    <div id="transcript-box" hidden>
+      <h2 data-i18n="res_transcript"></h2>
+      <p class="sub" data-i18n="res_transcript_sub"></p>
+      <p id="tr-meta" class="fine"></p>
+      <ol id="transcript" class="transcript"></ol>
+    </div>
+    <p id="adj" class="fine"></p>
+    <p class="fine" data-i18n="science"></p>
+  </div>
+</section>
+<script>window.JOB_ID = "{{ job_id }}"; window.SIGNALS = {{ signals|tojson }}; window.SCENARIOS = {{ scenarios|tojson }}; window.VOICE_SIGNALS = {{ voice_signals|tojson }};</script>
+{% endblock %}
+{% block scripts %}<script src="/static/results.js"></script>{% endblock %}
