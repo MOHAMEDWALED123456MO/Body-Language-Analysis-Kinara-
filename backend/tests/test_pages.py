@@ -44,3 +44,19 @@ def test_bulk_delete(tmp_path, monkeypatch):
     r = c.post("/api/sessions/delete", json={"all": True}).json()
     assert r["deleted"] == 2 and c.get("/api/sessions").json() == []
     assert db.session_owner(ids[0]) is None
+
+
+def test_prep_chat_saved_with_session(tmp_path, monkeypatch):
+    monkeypatch.setenv("KINARA_LLM", "none")
+    c = client(tmp_path, monkeypatch)
+    assert c.post("/api/prep/chat", json={"message": "hi"}).status_code == 401
+    signup(c)
+    r = c.post("/api/prep/chat", json={"scenario": "interview", "goal": "calm", "message": "How do I prepare?", "history": [], "lang": "en"})
+    assert r.status_code == 200 and r.json()["reply"]
+    assert c.post("/api/prep/chat", json={"message": "  "}).status_code == 400
+    jid = "9" * 32
+    jobs.create(jid, "v.mp4", ".mp4"); db.create_session(jid, 1, "v.mp4", {"scenario": "interview"})
+    msgs = [{"role": "user", "text": "q"}, {"role": "coach", "text": r.json()["reply"]}]
+    assert c.post(f"/api/jobs/{jid}/prep", json={"messages": msgs}).json()["saved"] == 2
+    assert len(jobs.get(jid)["chat"]) == 2
+    assert c.post("/api/jobs/" + "8" * 32 + "/prep", json={"messages": msgs}).status_code == 404

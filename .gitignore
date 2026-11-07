@@ -1,1 +1,4 @@
-backend/venv/ 
+backend/venv/
+backend/secrets.ps1
+backend/data/
+backend/__pycache__/

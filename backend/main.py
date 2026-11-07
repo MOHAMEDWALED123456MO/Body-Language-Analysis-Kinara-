@@ -339,6 +339,48 @@ def _chat_job(request, job_id):
     return enrich(job)
 
 
+class PrepIn(BaseModel):
+    scenario: str = "general"
+    goal: str = ""
+    message: str
+    history: list[dict] = []
+    lang: str = "en"
+
+
+@app.post("/api/prep/chat")
+def api_prep_chat(request: Request, body: PrepIn):
+    """Coach chat before a session exists (nothing is stored until the session is created)."""
+    _need_user(request)
+    try:
+        msg = chat.clean_message(body.message)
+    except chat.ChatError:
+        _fail(400, "empty")
+    try:
+        out = chat.prep_reply(clean_scenario(body.scenario), body.goal, body.history, msg, "ar" if body.lang == "ar" else "en")
+    except chat.ChatError as e:
+        print(f"[chat] {e.code}: {e}")
+        _fail(502 if e.code != "llm_busy" else 429, e.code)
+    return {"reply": out["text"], "engine": chat.engine_info()}
+
+
+class PrepSaveIn(BaseModel):
+    messages: list[dict] = []
+
+
+@app.post("/api/jobs/{job_id}/prep")
+def api_prep_save(request: Request, job_id: str, body: PrepSaveIn):
+    """Attach the pre-session chat to the new session (job history + Feedback rows)."""
+    _owned(request, job_id)
+    if jobs.get(job_id) is None:
+        _fail(404, "not_found")
+    msgs = [{"role": "user" if m.get("role") == "user" else "coach", "text": str(m.get("text", ""))[:2000]}
+            for m in body.messages[:30] if str(m.get("text", "")).strip()]
+    if msgs:
+        jobs.add_chat(job_id, msgs)
+        db.add_feedback(job_id, msgs)
+    return {"saved": len(msgs)}
+
+
 @app.get("/api/jobs/{job_id}/chat")
 def api_chat_history(request: Request, job_id: str):
     job = _chat_job(request, job_id)

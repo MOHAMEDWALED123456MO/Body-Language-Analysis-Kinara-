@@ -11,8 +11,15 @@
 <section class="step card" data-step="2" hidden>
   <h2 data-i18n="goal_l"></h2>
   <textarea id="goal" class="goal" rows="3" maxlength="300"></textarea>
-  <h3 data-i18n="tips_h"></h3>
-  <ul class="tips"><li data-i18n="tip1"></li><li data-i18n="tip2"></li><li data-i18n="tip3"></li><li data-i18n="tip4"></li></ul>
+  <h3 data-i18n="pp_h"></h3>
+  <p class="fine" data-i18n="pp_sub"></p>
+  <div id="pp-log" class="ch-log" aria-live="polite"></div>
+  <div id="pp-chips" class="ch-chips"></div>
+  <form id="pp-form" class="ch-form" autocomplete="off">
+    <input id="pp-input" type="text" maxlength="1000">
+    <button class="btn" type="submit" data-i18n="ch_send"></button>
+  </form>
+  <p id="pp-err" class="fine" hidden></p>
   <div class="wz-nav"><button class="btn ghost" type="button" data-go="1" data-i18n="wz_back"></button><button class="btn" type="button" data-go="3" data-i18n="wz_next"></button></div>
 </section>
 <section class="step" data-step="3" hidden>
@@ -41,4 +48,4 @@
 </section>
 <ul id="recent" hidden></ul>
 {% endblock %}
-{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/analyze.js"></script><script src="/static/wizard.js"></script><script src="/static/record.js"></script>{% endblock %}
+{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/analyze.js"></script><script src="/static/wizard.js"></script><script src="/static/prep.js"></script><script src="/static/record.js"></script>{% endblock %}

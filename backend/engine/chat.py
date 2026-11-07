@@ -321,3 +321,39 @@ def reply(job, message, lang="en"):
     if not text:
         raise ChatError("llm_failed", "empty answer")
     return {"text": text, "engine": name}
+
+
+# ---------------------------------------------------------------- coaching BEFORE a session
+
+PREP_SYSTEM = """You are Kinara, a friendly, honest public-speaking and body-language coach. The user has NOT recorded anything yet: they are preparing for a practice session.
+SCENARIO: {scenario}. GOAL: {goal}.
+Give short, practical preparation advice (under 120 words): what to do with posture, hands, eye contact, voice and structure for this scenario and goal, and one thing to try in the first minute. You have no analysis data yet, so never mention scores or measurements. Never claim to detect lying or emotions.
+Reply in the same language the user writes in. If they write Arabic, use simple Egyptian Arabic."""
+
+PREP_TIPS = {
+    "en": ["Sit or stand tall with relaxed shoulders, and keep the camera at eye level.",
+           "Look at the camera lens when you make your main points, not at yourself on the screen.",
+           "Keep hand gestures between your waist and shoulders, and let them rest between points.",
+           "Slow down, pause for a second after each key idea, and breathe before you start."],
+    "ar": ["اقعد أو وقف معتدل وكتافك مرتاحة، وخلّي الكاميرا في مستوى عينك.",
+           "بصّ على عدسة الكاميرا وإنت بتقول أهم نقطة، مش على نفسك في الشاشة.",
+           "خلّي حركة إيديك بين وسطك وكتافك، وسيبهم يرتاحوا بين النقط.",
+           "هدّي سرعتك، وقف ثانية بعد كل فكرة مهمة، وخد نفس قبل ما تبدأ."]}
+
+
+def prep_reply(scenario, goal, history, message, lang="en"):
+    """Pre-session coaching chat. history: [{role, text}] sent by the client."""
+    from .roles import SCENARIOS
+    sc = SCENARIOS.get(scenario) or SCENARIOS["general"]
+    hist = [{"role": "user" if m.get("role") == "user" else "coach", "text": str(m.get("text", ""))[:MAX_MESSAGE]}
+            for m in (history or [])][-HISTORY_SENT:]
+    hist.append({"role": "user", "text": message})
+    name = engine_name()
+    if name == "none":
+        l = "ar" if lang == "ar" else "en"
+        return {"text": sc["desc_" + l] + "\n\n" + "\n".join("• " + t for t in PREP_TIPS[l]), "engine": "none"}
+    system = PREP_SYSTEM.format(scenario=sc["en"], goal=(goal or "none given")[:300])
+    text = ENGINES[name](system, hist)
+    if not text:
+        raise ChatError("llm_failed", "empty answer")
+    return {"text": text, "engine": name}

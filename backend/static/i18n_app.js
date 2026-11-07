@@ -101,6 +101,9 @@ window.T_APP = {
     ss_busy:"Some sessions are still processing and were not deleted.",
     pf_stats:"Your numbers", pf_ach:"Achievements", pf_level:"Level",
     ac_first:"First session", ac_five:"5 sessions", ac_ten:"10 sessions", ac_70:"Score 70+", ac_85:"Score 85+",
+    pp_h:"Talk to your coach first", pp_sub:"Optional. Ask how to prepare for this scenario. The chat is saved with your session.",
+    pp_ph:"e.g. How should I start my interview answer?", pp_c1:"How should I prepare?", pp_c2:"What mistakes should I avoid?", pp_c3:"Give me a 1-minute warm-up",
+    pp_err:"The coach couldn't answer right now. Try again.",
     unit_s:"s"
   },
   ar: {
@@ -205,6 +208,9 @@ window.T_APP = {
     ss_busy:"في جلسات لسه بتتحلل ومتمسحتش.",
     pf_stats:"أرقامك", pf_ach:"الإنجازات", pf_level:"المستوى",
     ac_first:"أول جلسة", ac_five:"٥ جلسات", ac_ten:"١٠ جلسات", ac_70:"درجة ٧٠+", ac_85:"درجة ٨٥+",
+    pp_h:"اتكلم مع الكوتش الأول", pp_sub:"اختياري. اسأل إزاي تجهّز للموقف ده. المحادثة بتتحفظ مع جلستك.",
+    pp_ph:"مثلاً: أبدأ إجابتي في المقابلة إزاي؟", pp_c1:"أجهّز نفسي إزاي؟", pp_c2:"إيه الأخطاء اللي أتجنبها؟", pp_c3:"إحماء دقيقة قبل ما أبدأ",
+    pp_err:"الكوتش مقدرش يرد دلوقتي. جرّب تاني.",
     unit_s:"ث"
   }
 };

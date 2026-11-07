@@ -39,7 +39,10 @@
     xhr.upload.onprogress = (e) => { if (e.lengthComputable) setProgress(e.loaded / e.total); };
     xhr.onerror = () => fail("err_network");
     xhr.onload = () => {
-      if (xhr.status === 200) { location.href = "/results/" + JSON.parse(xhr.responseText).id; return; }
+      if (xhr.status === 200) {
+        const id = JSON.parse(xhr.responseText).id, go = () => { location.href = "/results/" + id; };
+        (window.KinaraPrepSave ? window.KinaraPrepSave(id) : Promise.resolve()).then(go, go); return;
+      }
       let code = null;
       try { code = JSON.parse(xhr.responseText).detail.code; } catch (e) {}
       fail(ERR[code] || "err_internal");
