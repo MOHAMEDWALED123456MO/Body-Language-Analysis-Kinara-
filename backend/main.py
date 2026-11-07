@@ -8,11 +8,12 @@ from pathlib import Path
 import cv2
 from pydantic import BaseModel
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from engine import auth, chat, db, jobs, progress
+from engine import auth, chat, db, jobs, live, progress
 from engine.coach import enrich
 from engine.roles import SCENARIOS, clean_goal, clean_scenario
 from engine.audio import VOICE_SIGNALS
@@ -124,10 +125,27 @@ def privacy(request: Request):
 
 
 @app.get("/analyze")
-def analyze_page(request: Request):
+def analyze_legacy():
+    return RedirectResponse("/new", status_code=303)
+
+
+@app.get("/new")
+def new_page(request: Request):
     if (g := _page_guard(request)):
         return g
     return templates.TemplateResponse(request, "analyze.html", {"scenarios": SCENARIOS})
+
+
+def _simple_page(name):
+    def page(request: Request):
+        if (g := _page_guard(request)):
+            return g
+        return templates.TemplateResponse(request, name + ".html", {"scenarios": SCENARIOS})
+    return page
+
+
+for _p in ("dashboard", "sessions", "profile"):
+    app.get("/" + _p, name="page_" + _p)(_simple_page(_p))
 
 
 @app.get("/results/{job_id}")
@@ -220,6 +238,51 @@ async def api_analyze(request: Request, background: BackgroundTasks, filename: s
 def api_progress(request: Request):
     user = _need_user(request)
     return progress.history(only_ids=None if user is None else set(db.user_session_ids(user["UserID"])))
+
+
+def _my_ids(user):
+    return None if user is None else set(db.user_session_ids(user["UserID"]))
+
+
+@app.get("/api/sessions")
+def api_sessions(request: Request):
+    """Every session of the signed-in user, newest first, with its score when it has one."""
+    user = _need_user(request)
+    mine = _my_ids(user)
+    scored = {r["id"]: r for r in progress.history(limit=100000, only_ids=mine)}
+    out = []
+    for r in jobs.list_recent(100000):
+        if mine is not None and r["id"] not in mine:
+            continue
+        sc = scored.get(r["id"])
+        out.append({**r, "scenario": sc["scenario"] if sc else (jobs.get(r["id"]) or {}).get("context", {}).get("scenario", "general"),
+                    "overall": sc["overall"] if sc else None, "label": sc["label"] if sc else None})
+    return out
+
+
+class DeleteIn(BaseModel):
+    ids: list[str] = []
+    all: bool = False
+
+
+@app.post("/api/sessions/delete")
+def api_sessions_delete(request: Request, body: DeleteIn):
+    """Delete chosen sessions (or all of them): the video file, the job and the database rows."""
+    user = _need_user(request)
+    mine = _my_ids(user)
+    ids = [r["id"] for r in jobs.list_recent(100000)] if body.all else body.ids
+    deleted, busy = 0, 0
+    for jid in ids:
+        if mine is not None and jid not in mine:
+            continue
+        outcome = jobs.delete(jid)
+        if outcome == "busy":
+            busy += 1
+            continue
+        db.delete_session(jid)
+        _saved.discard(jid)
+        deleted += outcome != "missing"
+    return {"deleted": deleted, "busy": busy}
 
 
 @app.get("/api/jobs")
@@ -346,6 +409,10 @@ class LoginIn(BaseModel):
     password: str = ""
 
 
+def _is_admin(user):
+    return user is not None and db.role_name(user["RoleID"]) == "admin"
+
+
 def _signed_in(user):
     res = JSONResponse({"ok": True, "name": user["FullName"]})
     res.set_cookie(auth.COOKIE, auth.make_token(user["UserID"]), max_age=auth.MAX_AGE, httponly=True, samesite="lax")
@@ -353,10 +420,10 @@ def _signed_in(user):
 
 
 @app.get("/login")
-def login_page(request: Request, next: str = "/analyze"):
+def login_page(request: Request, next: str = "/dashboard"):
     if auth.enabled() and _user(request) is not None:
-        return RedirectResponse(next if next.startswith("/") and not next.startswith("//") else "/analyze", status_code=303)
-    return templates.TemplateResponse(request, "login.html", {"next": next if next.startswith("/") and not next.startswith("//") else "/analyze"})
+        return RedirectResponse(next if next.startswith("/") and not next.startswith("//") else "/dashboard", status_code=303)
+    return templates.TemplateResponse(request, "login.html", {"next": next if next.startswith("/") and not next.startswith("//") else "/dashboard"})
 
 
 @app.post("/api/register")
@@ -414,4 +481,42 @@ def api_me(request: Request):
     user = _user(request)
     if user is None:
         _fail(401, "login_required")
-    return {"auth": True, "name": user["FullName"], "email": user["Email"]}
+    return {"auth": True, "name": user["FullName"], "email": user["Email"], "admin": _is_admin(user)}
+
+
+# ---------- live hints while recording
+@app.websocket("/ws/live")
+async def ws_live(ws: WebSocket):
+    if auth.enabled():
+        uid = auth.read_token(ws.cookies.get(auth.COOKIE, ""))
+        if not uid or db.get_user(uid) is None:
+            await ws.close(code=4401)
+            return
+    await ws.accept()
+    try:
+        session = live.LiveSession()
+    except live.LiveUnavailable as e:
+        await ws.send_json({"error": e.code})
+        await ws.close()
+        return
+    await ws.send_json({"ready": True})
+    import asyncio
+    try:
+        while True:
+            data = await ws.receive_bytes()
+            try:
+                out = await asyncio.to_thread(session.process, data)
+            except live.LiveUnavailable as e:
+                await ws.send_json({"error": e.code})
+                break
+            except ValueError:
+                out = {"visible": False, "hints": [], "good": False, "skipped": True}
+            await ws.send_json(out)
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:                       # a live-hint problem must never take the server down
+        print("[live] stopped:", e)
+        try:
+            await ws.close()
+        except Exception:
+            pass

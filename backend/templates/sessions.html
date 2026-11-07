@@ -1,0 +1,11 @@
+{% extends "base_app.html" %}
+{% block content %}
+<div class="pg-head"><div><h1 data-i18n="nav_sessions"></h1><p class="sub" data-i18n="ss_sub"></p></div>
+  <div class="actions"><a class="btn" href="/new" data-i18n="nav_new"></a>
+    <button id="del-sel" class="btn ghost danger" type="button" disabled data-i18n="ss_del_sel"></button>
+    <button id="del-all" class="btn ghost danger" type="button" data-i18n="ss_del_all"></button></div></div>
+<div id="alert" class="alert" hidden></div>
+<section class="card"><label class="chk"><input type="checkbox" id="pick-all"> <span data-i18n="ss_pick_all"></span></label>
+  <ul id="slist" class="slist"></ul></section>
+{% endblock %}
+{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/sessions.js"></script>{% endblock %}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kinara</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/app.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body class="appshell">
+<aside class="side" id="side">
+  <a class="s-logo" href="/dashboard">Kinara</a>
+  <nav class="s-nav" aria-label="main">
+    <a href="/dashboard" data-nav="dashboard"><i>▦</i><span data-i18n="nav_dashboard"></span></a>
+    <a href="/new" data-nav="new"><i>＋</i><span data-i18n="nav_new"></span></a>
+    <a href="/sessions" data-nav="sessions"><i>☰</i><span data-i18n="nav_sessions"></span></a>
+    <a href="/progress" data-nav="progress"><i>↗</i><span data-i18n="nav_progress"></span></a>
+    <a href="/profile" data-nav="profile"><i>◉</i><span data-i18n="nav_profile"></span></a>
+    <a href="/admin" data-nav="admin" id="nav-admin" hidden><i>⚙</i><span data-i18n="nav_admin"></span></a>
+  </nav>
+  <div class="s-foot">
+    <div class="s-who" id="s-who"></div>
+    <div class="s-row">
+      <button id="langBtn" class="lang" type="button">EN</button>
+      <button id="themeBtn" class="lang" type="button" aria-label="theme">◐</button>
+      <button id="logoutBtn" class="lang" type="button" data-i18n="au_logout"></button>
+    </div>
+  </div>
+</aside>
+<button class="s-burger" id="burger" type="button" aria-label="menu">☰</button>
+<main class="appmain">{% block content %}{% endblock %}</main>
+<script src="/static/i18n_app.js"></script><script src="/static/app.js"></script><script src="/static/shell.js"></script>{% block scripts %}{% endblock %}
+</body>
+</html>

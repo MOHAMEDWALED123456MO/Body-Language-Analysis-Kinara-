@@ -53,7 +53,7 @@ def rows(table, **where):
 
 def test_pages_and_api_need_login(env):
     c = client(env)
-    r = c.get("/analyze")
+    r = c.get("/new")
     assert r.status_code == 303 and r.headers["location"].startswith("/login")
     assert c.get("/progress").status_code == 303
     assert c.get("/api/jobs").status_code == 401
@@ -64,7 +64,7 @@ def test_register_login_logout(env):
     c = client(env)
     assert signup(c).status_code == 200
     assert c.get("/api/me").json()["name"] == "Ali"
-    assert c.get("/analyze").status_code == 200
+    assert c.get("/new").status_code == 200
     c.post("/api/logout"); c.cookies.clear()
     assert c.get("/api/me").status_code == 401
     assert c.post("/api/login", json={"email": "ali@x.com", "password": "wrong-pass"}).status_code == 401
@@ -82,6 +82,7 @@ def test_register_validation_and_hashing(env):
     u = db.get_user_by_email("ali@x.com")
     assert u["PasswordHash"].startswith("scrypt$") and "secret123" not in u["PasswordHash"]
     assert [r.RoleName for r in rows(db.UserRole)] == ["user", "admin"]
+    assert rows(db.SystemLog)                                           # the sign-up was logged
     assert db.get_user_by_email("ali@x.com")["RoleID"] == 2            # first account is the admin
     c2 = client(env); signup(c2, "Sara", "sara@x.com")
     assert db.get_user_by_email("sara@x.com")["RoleID"] == 1

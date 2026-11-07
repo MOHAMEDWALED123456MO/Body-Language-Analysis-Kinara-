@@ -22,7 +22,7 @@
     $("au-go").disabled = true;
     try {
       const r = await fetch("/api/" + mode, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (r.ok) { location.href = window.NEXT || "/analyze"; return; }
+      if (r.ok) { location.href = window.NEXT || "/dashboard"; return; }
       const d = await r.json().catch(() => ({}));
       showErr(MAP[d.detail && d.detail.code] || "au_err_net");
     } catch (err) { showErr("au_err_net"); }

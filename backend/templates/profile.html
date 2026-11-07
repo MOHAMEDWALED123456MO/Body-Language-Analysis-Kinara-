@@ -1,0 +1,11 @@
+{% extends "base_app.html" %}
+{% block content %}
+<div class="pg-head"><div><h1 data-i18n="nav_profile"></h1></div></div>
+<div class="two">
+  <section class="card prof"><div class="avatar" id="avatar"></div><h2 id="p-name"></h2><p class="fine" id="p-mail" dir="ltr"></p>
+    <div class="lvl"><b id="p-lvl"></b><div class="track"><i id="p-bar"></i></div><span class="fine" id="p-xp"></span></div></section>
+  <section class="card"><h2 data-i18n="pf_stats"></h2><div class="stats mini" id="p-stats"></div></section>
+</div>
+<section class="card"><h2 data-i18n="pf_ach"></h2><div class="ach" id="ach"></div></section>
+{% endblock %}
+{% block scripts %}<script src="/static/profile.js"></script>{% endblock %}

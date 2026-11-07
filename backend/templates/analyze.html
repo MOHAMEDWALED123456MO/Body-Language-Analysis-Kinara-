@@ -1,25 +1,31 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 {% block content %}
-<section class="sec an">
-  <h1 data-i18n="an_h"></h1>
-  <p class="lead" data-i18n="an_lead"></p>
-  <div id="alert" class="alert" role="alert" hidden></div>
-  <h2 data-i18n="sc_h"></h2>
-  <p class="sub" data-i18n="sc_sub"></p>
+<div class="pg-head"><div><h1 data-i18n="an_h"></h1><p class="sub" data-i18n="an_lead"></p></div></div>
+<ol class="stepper" id="stepper"><li data-i18n="wz_1"></li><li data-i18n="wz_2"></li><li data-i18n="wz_3"></li></ol>
+<div id="alert" class="alert" role="alert" hidden></div>
+<section class="step card" data-step="1">
+  <h2 data-i18n="sc_h"></h2><p class="sub" data-i18n="sc_sub"></p>
   <div id="scn" class="scn" role="radiogroup"></div>
-  <label class="goal-l" for="goal" data-i18n="goal_l"></label>
-  <textarea id="goal" class="goal" rows="2" maxlength="300"></textarea>
-  <button id="drop" class="drop" type="button">
-    <strong data-i18n="drop_t"></strong>
-    <span data-i18n="drop_s"></span>
-  </button>
+  <div class="wz-nav"><button class="btn" type="button" data-go="2" data-i18n="wz_next"></button></div>
+</section>
+<section class="step card" data-step="2" hidden>
+  <h2 data-i18n="goal_l"></h2>
+  <textarea id="goal" class="goal" rows="3" maxlength="300"></textarea>
+  <h3 data-i18n="tips_h"></h3>
+  <ul class="tips"><li data-i18n="tip1"></li><li data-i18n="tip2"></li><li data-i18n="tip3"></li><li data-i18n="tip4"></li></ul>
+  <div class="wz-nav"><button class="btn ghost" type="button" data-go="1" data-i18n="wz_back"></button><button class="btn" type="button" data-go="3" data-i18n="wz_next"></button></div>
+</section>
+<section class="step" data-step="3" hidden>
+  <div class="two">
+    <div class="card pick"><span class="pick-i">●</span>
+      <button id="rec-open" class="drop rec-open" type="button"><strong data-i18n="rec_open"></strong><span data-i18n="rec_open_s"></span></button></div>
+    <div class="card pick"><span class="pick-i">⇪</span>
+      <button id="drop" class="drop" type="button"><strong data-i18n="drop_t"></strong><span data-i18n="drop_s"></span></button></div>
+  </div>
   <input id="file" type="file" accept="video/*,.mkv" hidden>
-  <button id="rec-open" class="drop rec-open" type="button">
-    <strong data-i18n="rec_open"></strong>
-    <span data-i18n="rec_open_s"></span>
-  </button>
-  <div id="rec" class="rec" hidden>
-    <video id="rec-vid" playsinline muted></video>
+  <div id="rec" class="rec card" hidden>
+    <div class="rec-stage"><video id="rec-vid" playsinline muted></video><div id="live-hint" class="live-hint" role="status" aria-live="polite" hidden></div></div>
+    <label class="live-opt"><input type="checkbox" id="live-on" checked> <span data-i18n="live_on"></span></label>
     <div class="rec-bar">
       <span id="rec-time" class="rec-time" dir="ltr">0:00</span>
       <button id="rec-start" class="btn" type="button" data-i18n="rec_start"></button>
@@ -30,19 +36,9 @@
     </div>
     <p id="rec-note" class="fine"></p>
   </div>
-  <div id="up" class="prog" hidden>
-    <div class="track"><i id="upbar"></i></div>
-    <p id="uptext"></p>
-  </div>
-  <h2 data-i18n="tips_h"></h2>
-  <ul class="tips">
-    <li data-i18n="tip1"></li>
-    <li data-i18n="tip2"></li>
-    <li data-i18n="tip3"></li>
-    <li data-i18n="tip4"></li>
-  </ul>
-  <h2 data-i18n="recent_h"></h2>
-  <ul id="recent" class="recent"></ul>
+  <div id="up" class="prog" hidden><div class="track"><i id="upbar"></i></div><p id="uptext"></p></div>
+  <div class="wz-nav"><button class="btn ghost" type="button" data-go="2" data-i18n="wz_back"></button></div>
 </section>
+<ul id="recent" hidden></ul>
 {% endblock %}
-{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/session.js"></script><script src="/static/analyze.js"></script><script src="/static/record.js"></script>{% endblock %}
+{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/analyze.js"></script><script src="/static/wizard.js"></script><script src="/static/record.js"></script>{% endblock %}

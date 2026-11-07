@@ -78,6 +78,9 @@ def _init(eng):
             has = raw.execute("SELECT 1 FROM sqlite_master WHERE name='User'").fetchone()
             if not has:
                 raw.executescript((SQL_DIR / "schema_sqlite.sql").read_text(encoding="utf-8"))
+            elif any(r[1] == "Timestamp" for r in raw.execute("PRAGMA table_info(SystemLog)")):   # older file: align the column name
+                raw.execute("ALTER TABLE SystemLog RENAME COLUMN Timestamp TO LogTime")
+                raw.commit()
         finally:
             raw.close()
     with eng.begin() as c:
@@ -119,6 +122,11 @@ def count_users():
 def get_user(uid):
     with engine().connect() as c:
         return _row(c.execute(select(User).where(User.c.UserID == uid)).first())
+
+
+def role_name(role_id):
+    with engine().connect() as c:
+        return c.execute(select(UserRole.c.RoleName).where(UserRole.c.RoleID == role_id)).scalar()
 
 
 def get_user_by_email(email):

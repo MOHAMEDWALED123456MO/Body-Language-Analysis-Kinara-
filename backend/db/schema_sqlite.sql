@@ -85,7 +85,7 @@ CREATE TABLE SystemLog (
   UserID    INTEGER REFERENCES User(UserID) ON DELETE SET NULL,
   LogLevel  TEXT NOT NULL CHECK (LogLevel IN ('info','warning','error')),
   Message   TEXT NOT NULL,
-  Timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+  LogTime   TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE INDEX ix_session_user ON Session(UserID, StartTime);

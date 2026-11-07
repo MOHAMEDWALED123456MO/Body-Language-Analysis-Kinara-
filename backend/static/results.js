@@ -14,7 +14,7 @@
     const k = "err_" + (j.error_code || "internal"), s = KT.t(k);
     return s === k ? (j.error || "") : s;
   }
-  function newLink() { const a = el("a", "btn ghost", T("res_new")); a.href = "/analyze"; return a; }
+  function newLink() { const a = el("a", "btn ghost", T("res_new")); a.href = "/new"; return a; }
 
   function renderState() {
     const box = $("state"); box.replaceChildren(); $("view").hidden = true;
@@ -356,12 +356,13 @@
     $("state").replaceChildren(); $("view").hidden = false;
     if (!playerReady) {
       vid.src = "/api/jobs/" + JOB + "/video";
-      vid.addEventListener("error", () => { vid.hidden = true; $("vidnote").hidden = false; });
+      vid.addEventListener("error", () => { vid.hidden = true; $("pl").hidden = true; $("vidnote").hidden = false; });
       vid.addEventListener("timeupdate", () => { updatePlayheads(); markTranscript(); });
       playerReady = true;
     }
     $("vidnote").textContent = T("res_novideo");
     renderMeta(); renderScore(); renderCoach(); renderMoments(); renderTimeline(); renderTable(); renderVoice(); renderTranscript(); loadChat();
+    document.dispatchEvent(new CustomEvent("kinara:job", { detail: job }));
     $("adj").textContent = Object.keys(job.result.baseline_adjust || {}).length ? T("adj_note") : "";
   }
 
@@ -385,7 +386,7 @@
   $("del").addEventListener("click", async () => {
     if (!confirm(T("res_confirm"))) return;
     const r = await fetch("/api/jobs/" + JOB, { method: "DELETE" });
-    if (r.ok) location.href = "/analyze";
+    if (r.ok) location.href = "/sessions";
   });
   document.addEventListener("langchange", () => { if (job) render(); });
   poll();

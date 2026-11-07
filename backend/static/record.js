@@ -31,6 +31,45 @@
     setNote("rec_ready"); ui("ready"); timeEl.textContent = "0:00";
   }
 
+  // ---- live hints (optional; recording never depends on them)
+  const hintEl = $("live-hint"), liveBox = $("live-on");
+  let gotReady = false, ws = null, liveTimer = null, waiting = false, liveOn = false, canvas = null, t0live = 0;
+  const showHint = (txt, good) => { hintEl.textContent = txt || ""; hintEl.hidden = !txt; hintEl.classList.toggle("good", !!good); };
+  function liveStop() { liveOn = false; gotReady = true; clearTimeout(liveTimer); if (ws) { try { ws.close(); } catch (e) {} } ws = null; showHint(""); }
+  function liveStart() {
+    if (!liveBox || !liveBox.checked || !window.WebSocket) return;
+    try { ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/live"); } catch (e) { return; }
+    ws.binaryType = "arraybuffer"; waiting = false; gotReady = false; t0live = performance.now();
+    ws.onmessage = (ev) => {
+      let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (m.error) { setNote("live_err_" + m.error, true); liveStop(); return; }
+      if (m.ready) { gotReady = true; liveOn = true; setNote("live_ready"); loop(); return; }
+      waiting = false;
+      if (!m.visible) showHint(T("live_novis"));
+      else if (m.hints && m.hints.length) showHint(m.hints.map((h) => T("h_" + h)).join("  ·  "));
+      else showHint(m.good ? T("live_good") : "", true);
+    };
+    ws.onclose = () => { if (!gotReady || liveOn) setNote("live_err_net", true); liveOn = false; showHint(""); };
+    ws.onerror = () => { if (!gotReady) setNote("live_err_net", true); };
+  }
+  function loop() {
+    if (!liveOn || !ws || ws.readyState !== 1) return;
+    const began = performance.now();
+    if (!waiting && vid.videoWidth) {
+      const k = Math.min(1, 640 / Math.max(vid.videoWidth, vid.videoHeight));
+      canvas = canvas || document.createElement("canvas");
+      canvas.width = Math.round(vid.videoWidth * k); canvas.height = Math.round(vid.videoHeight * k);
+      canvas.getContext("2d").drawImage(vid, 0, 0, canvas.width, canvas.height);
+      waiting = true;
+      canvas.toBlob(async (blob) => {
+        if (!blob || !liveOn || !ws || ws.readyState !== 1) { waiting = false; return; }
+        const head = new ArrayBuffer(8); new DataView(head).setFloat64(0, performance.now() - t0live, false);
+        ws.send(new Blob([head, blob]));
+      }, "image/jpeg", 0.6);
+    }
+    liveTimer = setTimeout(loop, Math.max(60, 250 - (performance.now() - began)));
+  }
+
   function start() {
     if (!stream) return;
     blob = null; chunks = [];
@@ -38,13 +77,13 @@
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
     rec.onerror = () => { setNote("rec_err_failed", true); clearInterval(tick); ui("ready"); };
     rec.onstop = finish;
-    rec.start(1000); t0 = Date.now(); ui("recording"); setNote("rec_going");
+    rec.start(1000); t0 = Date.now(); ui("recording"); setNote("rec_going"); liveStart();
     tick = setInterval(() => {
       const s = Math.floor((Date.now() - t0) / 1000); timeEl.textContent = mmss(s);
       if (s >= MAX_S) { stop(); setNote("rec_max"); }
     }, 250);
   }
-  function stop() { clearInterval(tick); if (rec && rec.state !== "inactive") rec.stop(); }
+  function stop() { liveStop(); clearInterval(tick); if (rec && rec.state !== "inactive") rec.stop(); }
 
   function finish() {
     const type = (rec && rec.mimeType) || "video/webm";
@@ -63,7 +102,7 @@
     if (window.KinaraSend(f)) close(true);
   }
   function close(keepVideo) {
-    clearInterval(tick); if (rec && rec.state !== "inactive") { rec.onstop = null; rec.stop(); }
+    liveStop(); clearInterval(tick); if (rec && rec.state !== "inactive") { rec.onstop = null; rec.stop(); }
     stopStream(); if (!keepVideo) { vid.removeAttribute("src"); blob = null; }
     box.hidden = true; open.hidden = false;
   }

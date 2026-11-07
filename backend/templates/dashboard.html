@@ -1,0 +1,12 @@
+{% extends "base_app.html" %}
+{% block content %}
+<div class="pg-head"><div><h1 id="hello"></h1><p class="sub" data-i18n="db_sub"></p></div>
+  <a class="btn" href="/new" data-i18n="nav_new"></a></div>
+<div class="stats" id="stats"></div>
+<div class="two">
+  <section class="card"><h2 data-i18n="db_recent"></h2><ul id="recent-list" class="rlist"></ul>
+    <a class="more" href="/sessions" data-i18n="db_all"></a></section>
+  <section class="card"><h2 data-i18n="db_trend"></h2><div id="spark" class="spark"></div><a class="more" href="/progress" data-i18n="nav_progress"></a></section>
+</div>
+{% endblock %}
+{% block scripts %}<script>window.SCENARIOS = {{ scenarios|tojson }};</script><script src="/static/dashboard.js"></script>{% endblock %}
