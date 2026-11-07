@@ -19,3 +19,21 @@
     .then(([s, m]) => { rows = s; if (m && m.auth) me = m; render(); });
   document.addEventListener("langchange", render);
 })();
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const say = (id, key, bad) => { const m = $(id); m.hidden = false; m.textContent = KT.t(key); m.style.color = bad ? "var(--danger,#ff5d6c)" : "var(--cyan)"; };
+  const post = (u, b) => fetch(u, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) });
+  const ph = () => { $("pw-old").placeholder = KT.t("pf_pw_old"); $("pw-new").placeholder = KT.t("pf_pw_new"); $("del-pw").placeholder = KT.t("au_password") !== "au_password" ? KT.t("au_password") : "Password"; };
+  ph(); document.addEventListener("langchange", ph);
+  $("pw-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const r = await post("/api/account/password", { old: $("pw-old").value, new: $("pw-new").value });
+    if (r.ok) { say("pw-msg", "pf_pw_ok"); e.target.reset(); } else say("pw-msg", r.status === 400 ? "pf_pw_weak" : "pf_pw_bad", true);
+  });
+  $("del-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!confirm(KT.t("pf_del_confirm"))) return;
+    const r = await post("/api/account/delete", { password: $("del-pw").value });
+    if (r.ok) location.href = "/"; else say("del-msg", r.status === 409 ? "ss_busy" : "pf_pw_bad", true);
+  });
+})();

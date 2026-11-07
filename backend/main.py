@@ -516,6 +516,63 @@ def api_logout():
     return res
 
 
+class PasswordIn(BaseModel):
+    old: str = ""
+    new: str = ""
+
+
+@app.post("/api/account/password")
+def api_password(request: Request, body: PasswordIn):
+    user = _need_user(request)
+    if user is None or not auth.verify_password(body.old, user["PasswordHash"]):
+        _fail(401, "bad_login")
+    if not auth.password_ok(body.new):
+        _fail(400, "weak_password")
+    db.set_password(user["UserID"], auth.hash_password(body.new))
+    db.log("info", "password changed", user["UserID"])
+    return {"ok": True}
+
+
+class DeleteAccountIn(BaseModel):
+    password: str = ""
+
+
+@app.post("/api/account/delete")
+def api_account_delete(request: Request, body: DeleteAccountIn):
+    """Deletes the signed-in user's sessions, videos and the account itself."""
+    user = _need_user(request)
+    if user is None or not auth.verify_password(body.password, user["PasswordHash"]):
+        _fail(401, "bad_login")
+    if jobs_busy := [j for j in db.user_session_ids(user["UserID"]) if (jobs.get(j) or {}).get("status") in ("queued", "processing")]:
+        _fail(409, "busy")
+    for jid in db.user_session_ids(user["UserID"]):
+        jobs.delete(jid)
+        db.delete_session(jid)
+        _saved.discard(jid)
+    db.log("info", f"account deleted: {user['Email'][:80]}")
+    db.delete_user(user["UserID"])
+    res = JSONResponse({"ok": True})
+    res.delete_cookie(auth.COOKIE)
+    return res
+
+
+@app.get("/admin")
+def admin_page(request: Request):
+    if (g := _page_guard(request)):
+        return g
+    if auth.enabled() and not _is_admin(_user(request)):
+        raise HTTPException(404)
+    return templates.TemplateResponse(request, "admin.html", {"scenarios": SCENARIOS})
+
+
+@app.get("/api/admin/overview")
+def api_admin(request: Request):
+    user = _need_user(request)
+    if user is not None and not _is_admin(user):
+        _fail(403, "forbidden")
+    return db.overview()
+
+
 @app.get("/api/me")
 def api_me(request: Request):
     if not auth.enabled():

@@ -1,0 +1,8 @@
+{% extends "base_app.html" %}
+{% block content %}
+<div class="pg-head"><div><h1 data-i18n="nav_admin"></h1><p class="sub" data-i18n="ad_sub"></p></div></div>
+<div class="stats" id="ad-stats"></div>
+<section class="card"><h2 data-i18n="ad_users"></h2><div class="tbl"><table id="ad-users"></table></div></section>
+<section class="card"><h2 data-i18n="ad_logs"></h2><ul id="ad-logs" class="logs"></ul></section>
+{% endblock %}
+{% block scripts %}<script src="/static/admin.js"></script>{% endblock %}

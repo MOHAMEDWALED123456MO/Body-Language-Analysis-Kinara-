@@ -236,3 +236,36 @@ def delete_session(job_id):
 def log(level, message, uid=None):
     with engine().begin() as c:
         c.execute(insert(SystemLog).values(UserID=uid, LogLevel=level, Message=str(message)[:2000], LogTime=now()))
+
+
+# ---------- account + admin
+@_safe
+def set_password(uid, pw_hash):
+    with engine().begin() as c:
+        c.execute(update(User).where(User.c.UserID == uid).values(PasswordHash=pw_hash))
+
+
+@_safe
+def delete_user(uid):
+    """Removes the account. Its sessions must already be deleted; log rows keep their text but lose the user."""
+    with engine().begin() as c:
+        c.execute(update(SystemLog).where(SystemLog.c.UserID == uid).values(UserID=None))
+        c.execute(delete(User).where(User.c.UserID == uid))
+
+
+def overview(log_limit=40):
+    """Admin numbers: totals, every user with a session count, and the latest log lines."""
+    with engine().connect() as c:
+        roles = {r[0]: r[1] for r in c.execute(select(UserRole.c.RoleID, UserRole.c.RoleName))}
+        counts = {}
+        for (uid,) in c.execute(select(Session.c.UserID)):
+            counts[uid] = counts.get(uid, 0) + 1
+        users = [{"id": u.UserID, "name": u.FullName, "email": u.Email, "role": roles.get(u.RoleID, "user"),
+                  "joined": u.JoinDate.isoformat() if u.JoinDate else None, "sessions": counts.get(u.UserID, 0)}
+                 for u in c.execute(select(User).order_by(User.c.UserID))]
+        logs = [{"level": r.LogLevel, "message": r.Message, "time": r.LogTime.isoformat() if r.LogTime else None, "user": r.UserID}
+                for r in c.execute(select(SystemLog).order_by(SystemLog.c.LogID.desc()).limit(log_limit))]
+        nsess = sum(counts.values())
+        scores = [r[0] for r in c.execute(select(Report.c.Score)) if r[0] is not None]
+    return {"stats": {"users": len(users), "sessions": nsess, "avg_score": round(sum(scores) / len(scores)) if scores else None},
+            "users": users, "logs": logs}

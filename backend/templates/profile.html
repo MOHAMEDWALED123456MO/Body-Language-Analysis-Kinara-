@@ -7,5 +7,18 @@
   <section class="card"><h2 data-i18n="pf_stats"></h2><div class="stats mini" id="p-stats"></div></section>
 </div>
 <section class="card"><h2 data-i18n="pf_ach"></h2><div class="ach" id="ach"></div></section>
+<div class="two">
+  <section class="card"><h2 data-i18n="pf_pw"></h2>
+    <form id="pw-form" class="stack" autocomplete="off">
+      <input id="pw-old" type="password" required autocomplete="current-password">
+      <input id="pw-new" type="password" required minlength="8" autocomplete="new-password">
+      <button class="btn" type="submit" data-i18n="pf_pw_save"></button>
+      <p id="pw-msg" class="fine" hidden></p></form></section>
+  <section class="card danger-zone"><h2 data-i18n="pf_del"></h2><p class="fine" data-i18n="pf_del_sub"></p>
+    <form id="del-form" class="stack" autocomplete="off">
+      <input id="del-pw" type="password" required autocomplete="current-password">
+      <button class="btn ghost danger" type="submit" data-i18n="pf_del_btn"></button>
+      <p id="del-msg" class="fine" hidden></p></form></section>
+</div>
 {% endblock %}
 {% block scripts %}<script src="/static/profile.js"></script>{% endblock %}

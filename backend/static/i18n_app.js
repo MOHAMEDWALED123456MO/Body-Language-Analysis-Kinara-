@@ -104,6 +104,11 @@ window.T_APP = {
     pp_h:"Talk to your coach first", pp_sub:"Optional. Ask how to prepare for this scenario. The chat is saved with your session.",
     pp_ph:"e.g. How should I start my interview answer?", pp_c1:"How should I prepare?", pp_c2:"What mistakes should I avoid?", pp_c3:"Give me a 1-minute warm-up",
     pp_err:"The coach couldn't answer right now. Try again.",
+    ad_sub:"Users, activity and system log.", ad_users:"Users", ad_logs:"Latest log", ad_n_users:"Users", ad_name:"Name", ad_email:"Email", ad_role:"Role", ad_joined:"Joined",
+    pf_pw:"Change password", pf_pw_old:"Current password", pf_pw_new:"New password (8+ characters)", pf_pw_save:"Save password", pf_pw_ok:"Password changed.",
+    pf_pw_bad:"Wrong password.", pf_pw_weak:"New password is too weak (use 8+ characters).",
+    pf_del:"Delete account", pf_del_sub:"Deletes your account, all sessions and their videos. This can't be undone.", pf_del_btn:"Delete my account",
+    pf_del_confirm:"Delete your account and everything in it? This can't be undone.",
     unit_s:"s"
   },
   ar: {
@@ -211,6 +216,11 @@ window.T_APP = {
     pp_h:"اتكلم مع الكوتش الأول", pp_sub:"اختياري. اسأل إزاي تجهّز للموقف ده. المحادثة بتتحفظ مع جلستك.",
     pp_ph:"مثلاً: أبدأ إجابتي في المقابلة إزاي؟", pp_c1:"أجهّز نفسي إزاي؟", pp_c2:"إيه الأخطاء اللي أتجنبها؟", pp_c3:"إحماء دقيقة قبل ما أبدأ",
     pp_err:"الكوتش مقدرش يرد دلوقتي. جرّب تاني.",
+    ad_sub:"المستخدمين والنشاط وسجل النظام.", ad_users:"المستخدمين", ad_logs:"آخر السجلات", ad_n_users:"المستخدمين", ad_name:"الاسم", ad_email:"الإيميل", ad_role:"الدور", ad_joined:"تاريخ الانضمام",
+    pf_pw:"تغيير كلمة السر", pf_pw_old:"كلمة السر الحالية", pf_pw_new:"كلمة السر الجديدة (٨ حروف على الأقل)", pf_pw_save:"حفظ كلمة السر", pf_pw_ok:"اتغيّرت كلمة السر.",
+    pf_pw_bad:"كلمة السر غلط.", pf_pw_weak:"كلمة السر الجديدة ضعيفة (٨ حروف على الأقل).",
+    pf_del:"حذف الحساب", pf_del_sub:"بيمسح حسابك وكل جلساتك وفيديوهاتها. مفيش رجوع.", pf_del_btn:"امسح حسابي",
+    pf_del_confirm:"تمسح حسابك وكل اللي فيه؟ مفيش رجوع.",
     unit_s:"ث"
   }
 };

@@ -60,3 +60,31 @@ def test_prep_chat_saved_with_session(tmp_path, monkeypatch):
     assert c.post(f"/api/jobs/{jid}/prep", json={"messages": msgs}).json()["saved"] == 2
     assert len(jobs.get(jid)["chat"]) == 2
     assert c.post("/api/jobs/" + "8" * 32 + "/prep", json={"messages": msgs}).status_code == 404
+
+
+def test_password_delete_admin(tmp_path, monkeypatch):
+    c = client(tmp_path, monkeypatch)
+    signup(c)                                  # first account = admin
+    assert c.get("/api/admin/overview").json()["stats"]["users"] == 1
+    assert c.get("/admin").status_code == 200
+    assert c.post("/api/account/password", json={"old": "nope", "new": "newsecret1"}).status_code == 401
+    assert c.post("/api/account/password", json={"old": "secret123", "new": "x"}).status_code == 400
+    assert c.post("/api/account/password", json={"old": "secret123", "new": "newsecret1"}).status_code == 200
+    c2 = client(tmp_path, monkeypatch); c2.cookies.clear()
+    assert c2.post("/api/login", json={"email": "a@b.co", "password": "newsecret1"}).status_code == 200
+    jid = "6" * 32
+    jobs.create(jid, "v.mp4", ".mp4"); db.create_session(jid, 1, "v.mp4", {"scenario": "general"})
+    assert c.post("/api/account/delete", json={"password": "newsecret1"}).status_code == 409   # still processing
+    j = jobs.get(jid); j["status"] = "done"; jobs._touch(j)
+    assert c.post("/api/account/delete", json={"password": "wrong"}).status_code == 401
+    assert c.post("/api/account/delete", json={"password": "newsecret1"}).status_code == 200
+    assert db.session_owner(jid) is None and db.get_user_by_email("a@b.co") is None
+
+
+def test_admin_only_for_admin(tmp_path, monkeypatch):
+    c = client(tmp_path, monkeypatch)
+    signup(c, "admin@b.co")
+    c2 = TestClient(main.app, follow_redirects=False)
+    signup(c2, "user@b.co")
+    assert c2.get("/api/admin/overview").status_code == 403
+    assert c2.get("/admin").status_code == 404
