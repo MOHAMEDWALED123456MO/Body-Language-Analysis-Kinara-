@@ -1,0 +1,29 @@
+# Kinara — Body Language Analysis
+# Python 3.11+
+# Install:  pip install -r requirements.txt
+
+# ---------- Web framework ----------
+fastapi>=0.110,<0.200
+uvicorn[standard]>=0.27,<1.0          # includes websockets + httptools
+python-multipart>=0.0.9,<1.0          # for FastAPI form/request streaming
+jinja2>=3.1,<4.0                      # templates
+
+# ---------- Database (SQLAlchemy Core) ----------
+sqlalchemy>=2.0,<3.0
+pydantic>=2.5,<3.0                    # comes with FastAPI, pinned for safety
+
+# ---------- Computer vision & pose detection ----------
+mediapipe>=0.10.14,<0.11              # PoseLandmarker tasks API
+opencv-python>=4.8,<5.0               # cv2 (video I/O, drawing)
+numpy>=1.24,<2.0                      # pinned <2.0 for mediapipe + faster-whisper compat
+
+# ---------- Audio & speech-to-text ----------
+imageio-ffmpeg>=0.4.9,<1.0            # bundled ffmpeg binary, no system install needed
+faster-whisper>=1.0,<2.0              # speech-to-text (CTranslate2 backend)
+
+# ---------- Testing ----------
+pytest>=8.0,<9.0
+
+# ---------- Optional: load .env files automatically ----------
+# Uncomment to use a .env file instead of exporting vars in the shell:
+# python-dotenv>=1.0,<2.0
